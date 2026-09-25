@@ -1,9 +1,8 @@
 name: Check for new Switch games
 
 on:
-  schedule:
-    # Every 30 minutes (UTC). Off the hour mark, where GitHub's scheduler is busiest.
-    - cron: '13,43 * * * *'
+  # Triggered every 30 minutes by cron-job.org through the workflow dispatch API.
+  # GitHub's own schedule trigger ran too rarely to be useful.
   workflow_dispatch:
 
 permissions:
