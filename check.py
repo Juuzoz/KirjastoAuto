@@ -158,19 +158,28 @@ def main():
     if not new:
         return
 
+    # Mentioning a user makes Discord send them a push notification. Mentions
+    # only ping from the message text, not from embeds, so the first message's
+    # text also names the games for the notification preview.
+    user_id = os.environ.get("DISCORD_USER_ID", "").strip()
+    mention = f"<@{user_id}> " if user_id else ""
+    allowed_mentions = {"users": [user_id] if user_id else []}
+
     # Each batch is (message payload, records it announces).
     if len(new) > FLOOD_LIMIT:
         batches = [({
-            "content": f"🎮 {len(new)} new Switch / Switch 2 records appeared in PIKI at once "
+            "content": f"{mention}🎮 {len(new)} new Switch / Switch 2 records appeared in PIKI at once "
                        "(possibly a catalogue re-index). Browse the newest: <" + SEARCH_URL + ">",
+            "allowed_mentions": allowed_mentions,
         }, new)]
     else:
         batches = []
         for i in range(0, len(new), EMBEDS_PER_MESSAGE):
             chunk = new[i:i + EMBEDS_PER_MESSAGE]
-            msg = {"embeds": [build_embed(rec) for rec in chunk]}
+            msg = {"embeds": [build_embed(rec) for rec in chunk], "allowed_mentions": allowed_mentions}
             if i == 0:
-                msg["content"] = "🎮 New in PIKI libraries"
+                titles = ", ".join(label(rec) for rec in new)
+                msg["content"] = f"{mention}🎮 New in PIKI: {titles}"[:2000]
             batches.append((msg, chunk))
 
     if dry_run:

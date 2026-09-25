@@ -23,6 +23,7 @@ jobs:
         run: python3 check.py
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+          DISCORD_USER_ID: ${{ vars.DISCORD_USER_ID }}
 
       - name: Save seen games
         if: always()

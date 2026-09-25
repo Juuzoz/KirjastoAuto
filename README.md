@@ -13,8 +13,11 @@ records held by PIKI from the [Finna API](https://api.finna.fi/), compares them 
 1. In Discord: *Server Settings → Integrations → Webhooks → New Webhook*, pick a channel, *Copy Webhook URL*.
 2. In GitHub: *Settings → Secrets and variables → Actions → New repository secret*,
    name `DISCORD_WEBHOOK`, value = the webhook URL.
-3. *Actions* tab → *Check for new Switch games* → *Run workflow* to test it.
-4. Create a fine-grained personal access token for this repository with *Actions: Read and write*, then a
+3. Optional, to get a push notification: in Discord enable *Settings → Advanced → Developer Mode*, right-click
+   your name → *Copy User ID*. In GitHub: *Settings → Secrets and variables → Actions → Variables →
+   New repository variable*, name `DISCORD_USER_ID`, value = that ID. New-game messages will then mention you.
+4. *Actions* tab → *Check for new Switch games* → *Run workflow* to test it.
+5. Create a fine-grained personal access token for this repository with *Actions: Read and write*, then a
    cron-job.org job that runs every 30 minutes:
    `POST https://api.github.com/repos/Juuzoz/KirjastoAuto/actions/workflows/check.yml/dispatches`
    with body `{"ref":"main"}` and headers `Authorization: Bearer <token>`,
