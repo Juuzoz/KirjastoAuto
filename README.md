@@ -1,7 +1,8 @@
 # KirjastoAuto
 
 Posts a Discord message when a new **Nintendo Switch** or **Switch 2** game is added to the
-[PIKI libraries](https://piki.finna.fi/) (Pirkanmaa).
+[PIKI libraries](https://piki.finna.fi/) (Pirkanmaa), and a quieter message (no ping) when a game already in
+the catalogue reaches a library that didn't have it before. All Tampere city library branches count as one library.
 
 A GitHub Actions workflow runs [`check.py`](check.py) every 30 minutes, started by a
 [cron-job.org](https://cron-job.org) job that calls the workflow dispatch API. It fetches all Switch / Switch 2
