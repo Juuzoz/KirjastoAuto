@@ -634,6 +634,7 @@
   "piki.5845925": {"title": "Tales of Berseria Remastered (Nintendo Switch)", "libraries": ["Tampereen kaupunginkirjasto"]},
   "piki.5847578": {"title": "Hello Kitty Island Adventure (Nintendo Switch)", "libraries": ["Oriveden Pääkirjasto", "Virtain pääkirjasto"]},
   "piki.5849427": {"title": "Sonic X Shadow Generations (Nintendo Switch)", "libraries": ["Virtain pääkirjasto"]},
+  "piki.5858023": {"title": "LEGO Batman : Legacy of the Dark Knight (Nintendo Switch 2)", "libraries": ["Virtain pääkirjasto"]},
   "piki.5858031": {"title": "The Rogue Prince of Persia (Nintendo Switch)", "libraries": ["Tampereen kaupunginkirjasto", "Valkeakosken pääkirjasto", "Ylöjärven pääkirjasto"]},
   "piki.5865579": {"title": "Mario Tennis Fever (Nintendo Switch 2)", "libraries": ["Kangasalan kirjasto", "Nokian kirjasto", "Valkeakosken pääkirjasto"]},
   "piki.5865582": {"title": "Once upon a Katamari (Nintendo Switch)", "libraries": ["Tampereen kaupunginkirjasto"]},
@@ -680,6 +681,8 @@
   "piki.5967088": {"title": "Harvest moon: echoes of teradea (Nintendo Switch)", "libraries": ["Valkeakosken pääkirjasto"]},
   "piki.5967091": {"title": "Minecraft (Nintendo Switch 2)", "libraries": ["Virtain pääkirjasto"]},
   "piki.5967092": {"title": "Minecraft dungeons 2 deluxe edition (Nintendo Switch 2)", "libraries": ["Nokian kirjasto"]},
+  "piki.5974376": {"title": "Final fantasy resonance (Nintendo Switch)", "libraries": ["Tampereen kaupunginkirjasto"]},
   "piki.5974383": {"title": "Lego harry potter collection years 1-7 (Nintendo Switch 2)", "libraries": ["Virtain pääkirjasto"]},
-  "piki.5976067": {"title": "Pokémon Violet (Nintendo Switch)", "libraries": ["Urjalan kirjasto"]}
+  "piki.5976067": {"title": "Pokémon Violet (Nintendo Switch)", "libraries": ["Urjalan kirjasto"]},
+  "piki.5978365": {"title": "Moomintroll: Winter's warmth (Nintendo Switch)", "libraries": ["Kangasalan kirjasto", "Tampereen kaupunginkirjasto"]}
 }
