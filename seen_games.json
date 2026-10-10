@@ -685,5 +685,7 @@
   "piki.5974376": {"title": "Final fantasy resonance (Nintendo Switch)", "libraries": ["Tampereen kaupunginkirjasto"]},
   "piki.5974383": {"title": "Lego harry potter collection years 1-7 (Nintendo Switch 2)", "libraries": ["Virtain pääkirjasto"]},
   "piki.5976067": {"title": "Pokémon Violet (Nintendo Switch)", "libraries": ["Urjalan kirjasto"]},
-  "piki.5978365": {"title": "Moomintroll: Winter's warmth (Nintendo Switch)", "libraries": ["Kangasalan kirjasto", "Tampereen kaupunginkirjasto"]}
+  "piki.5978365": {"title": "Moomintroll: Winter's warmth (Nintendo Switch)", "libraries": ["Kangasalan kirjasto", "Tampereen kaupunginkirjasto"]},
+  "piki.5980348": {"title": "Dragon quest monsters: the withered world (Nintendo Switch)", "libraries": ["Tampereen kaupunginkirjasto", "Valkeakosken pääkirjasto"]},
+  "piki.5982540": {"title": "Mortal Kombat: Legacy Kollection (Nintendo Switch)", "libraries": ["Tampereen kaupunginkirjasto"]}
 }
