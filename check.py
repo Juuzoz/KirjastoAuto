@@ -23,8 +23,8 @@ from pathlib import Path
 
 API_URL = "https://api.finna.fi/v1/search"
 RECORD_URL = "https://piki.finna.fi/Record/{}"
-SEARCH_URL = ("https://piki.finna.fi/Search/Results?filter%5B%5D=~format%3A%222%2FGame%2FVideoGame%2FSwitch%2F%22"
-              "&filter%5B%5D=~format%3A%222%2FGame%2FVideoGame%2FSwitch2%2F%22&sort=first_indexed+desc")
+SEARCH_URL = ("https://piki.finna.fi/Search/Results?filter%5B%5D=~format_ext_str_mv%3A%222%2FGame%2FVideoGame%2FSwitch%2F%22"
+              "&filter%5B%5D=~format_ext_str_mv%3A%222%2FGame%2FVideoGame%2FSwitch2%2F%22&sort=first_indexed+desc")
 COVER_BASE = "https://finna.fi"
 USER_AGENT = "KirjastoAuto (+https://github.com/Juuzoz/KirjastoAuto)"
 STATE_FILE = Path(__file__).with_name("seen_games.json")
@@ -55,34 +55,94 @@ def http_json(url, data=None):
     return json.loads(body) if body else None
 
 
-def fetch_games():
-    """Return {record_id: record} for every Switch / Switch 2 game in PIKI."""
+def finna_json(url):
+    """GET from the Finna API, retrying when it is rate limiting or briefly unavailable."""
+    for wait in (10, 30, None):
+        try:
+            return http_json(url)
+        except (urllib.error.URLError, TimeoutError) as e:
+            transient = not isinstance(e, urllib.error.HTTPError) or e.code == 429 or e.code >= 500
+            if not transient or wait is None:
+                raise
+            print(f"Finna request failed ({e}), retrying in {wait}s")
+            time.sleep(wait)
+
+
+def search_all(extra_params):
+    """Return {record_id: record} for every PIKI record matching the extra search params."""
     params = [
         ("filter[]", 'building:"0/Piki/"'),
-        *[("filter[]", f'~format:"{code}"') for code in PLATFORMS],
-        ("sort", "first_indexed desc"),
+        *extra_params,
+        ("sort", "id asc"),  # unique, so paging can't skip or repeat records
         ("limit", PAGE_SIZE),
-        *[("field[]", f) for f in ("id", "title", "formats", "buildings", "images", "publishers", "year")],
+        *[("field[]", f) for f in ("id", "title", "formats", "physicalDescriptions",
+                                   "buildings", "images", "publishers", "year")],
     ]
-    games, page = {}, 1
+    found, page = {}, 1
     while True:
         query = urllib.parse.urlencode(params + [("page", page)])
-        data = http_json(f"{API_URL}?{query}")
+        data = finna_json(f"{API_URL}?{query}")
         if data.get("status") != "OK":
             raise RuntimeError(f"Finna API error: {data}")
         records = data.get("records", [])
         for rec in records:
-            games[rec["id"]] = rec
+            found[rec["id"]] = rec
         if not records or page * PAGE_SIZE >= data["resultCount"]:
-            return games
+            return found
         page += 1
 
 
+def fetch_games():
+    """Return {record_id: record} for every Switch / Switch 2 game in PIKI.
+
+    Finna merges records of the same game from different library networks, and
+    search filters match the merged record, so another network cataloguing a
+    game less precisely can hide PIKI's copy from a `format` filter. Two broad
+    searches gather candidates, then each PIKI record is judged by its own data.
+    """
+    candidates = search_all([("filter[]", f'~format_ext_str_mv:"{code}"') for code in PLATFORMS])
+    candidates.update(search_all([
+        ("filter[]", 'format_ext_str_mv:"1/Game/VideoGame/"'),
+        ("lookfor", '"Nintendo Switch"'),
+    ]))
+    games = {}
+    for gid, rec in candidates.items():
+        if platform := own_platform(rec):
+            rec["platform"] = platform
+            games[gid] = rec
+    return games
+
+
+SWITCH_2_TEXT = re.compile(r"nintendo\s+switch\s*2", re.IGNORECASE)
+SWITCH_TEXT = re.compile(r"nintendo\s+switch", re.IGNORECASE)
+OTHER_PLATFORM_TEXT = re.compile(r"\b(ps\s*[345]|playstation|xbox|wii\s*u|3ds|pc|windows)\b", re.IGNORECASE)
+
+
+def own_platform(rec):
+    """Platform name from the record's own catalogue data, or None if it isn't a Switch / Switch 2 game."""
+    formats = {f["value"] for f in rec.get("formats", [])}
+    if "1/Game/VideoGame/" not in formats:
+        return None
+    text = " ".join([rec.get("title", "")] + (rec.get("physicalDescriptions") or []))
+    if OTHER_PLATFORM_TEXT.search(text) and not SWITCH_TEXT.search(text):
+        return None
+    platforms = {v for v in formats if v.startswith("2/Game/VideoGame/")}
+    for code, name in sorted(PLATFORMS.items(), reverse=True):  # Switch 2 first
+        if code in platforms:
+            return name
+    if platforms:  # catalogued as some other platform
+        return None
+    # No platform level in the record at all: fall back to its title and
+    # physical description, e.g. "1 muistikortti (Nintendo Switch)".
+    if SWITCH_2_TEXT.search(text):
+        return "Nintendo Switch 2"
+    if SWITCH_TEXT.search(text):
+        return "Nintendo Switch"
+    return None
+
+
 def platform_of(rec):
-    for fmt in rec.get("formats", []):
-        if fmt["value"] in PLATFORMS:
-            return PLATFORMS[fmt["value"]]
-    return "Nintendo Switch"
+    return rec["platform"]
 
 
 def clean_title(rec):
