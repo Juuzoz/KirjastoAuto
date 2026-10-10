@@ -9,6 +9,7 @@ Discord webhook (DISCORD_WEBHOOK env var):
 
     python check.py            # normal run
     python check.py --dry-run  # print what would be posted, change nothing
+    python check.py --full     # include the text search regardless of the time
 """
 
 import json
@@ -19,6 +20,7 @@ import time
 import urllib.error
 import urllib.parse
 import urllib.request
+from datetime import datetime, timezone
 from pathlib import Path
 
 API_URL = "https://api.finna.fi/v1/search"
@@ -33,7 +35,8 @@ PLATFORMS = {
     "2/Game/VideoGame/Switch/": "Nintendo Switch",
     "2/Game/VideoGame/Switch2/": "Nintendo Switch 2",
 }
-PAGE_SIZE = 100
+PAGE_SIZE = 100  # the Finna API's maximum
+TEXT_SEARCH_EVERY_HOURS = 4
 # More new games than this in one run most likely means Finna re-indexed
 # records under new IDs, so post one summary instead of flooding the channel.
 FLOOD_LIMIT = 30
@@ -92,19 +95,33 @@ def search_all(extra_params):
         page += 1
 
 
-def fetch_games():
+def text_search_due(now):
+    """Whether this run should also do the text search: once every 4 hours.
+
+    Runs come every 30 minutes (:00 and :30), so this picks the first run of
+    every fourth UTC hour.
+    """
+    return now.hour % TEXT_SEARCH_EVERY_HOURS == 0 and now.minute < 30
+
+
+def fetch_games(text_search=True):
     """Return {record_id: record} for every Switch / Switch 2 game in PIKI.
 
     Finna merges records of the same game from different library networks, and
     search filters match the merged record, so another network cataloguing a
-    game less precisely can hide PIKI's copy from a `format` filter. Two broad
+    game less precisely can hide PIKI's copy from a `format` filter. Broad
     searches gather candidates, then each PIKI record is judged by its own data.
+
+    The format search finds nearly everything. The text search additionally
+    catches games with no platform code in any network's record; it costs as
+    many requests again, so it can be skipped on most runs.
     """
     candidates = search_all([("filter[]", f'~format_ext_str_mv:"{code}"') for code in PLATFORMS])
-    candidates.update(search_all([
-        ("filter[]", 'format_ext_str_mv:"1/Game/VideoGame/"'),
-        ("lookfor", '"Nintendo Switch"'),
-    ]))
+    if text_search:
+        candidates.update(search_all([
+            ("filter[]", 'format_ext_str_mv:"1/Game/VideoGame/"'),
+            ("lookfor", '"Nintendo Switch"'),
+        ]))
     games = {}
     for gid, rec in candidates.items():
         if platform := own_platform(rec):
@@ -273,8 +290,11 @@ def main():
     if not webhook and not dry_run:
         sys.exit("DISCORD_WEBHOOK is not set (use --dry-run to test without it).")
 
-    games = fetch_games()
     seen = load_state()
+    # Seeding always uses every search, so the first state file is complete.
+    text_search = seen is None or "--full" in sys.argv or text_search_due(datetime.now(timezone.utc))
+    games = fetch_games(text_search)
+    print(f"Text search {'included' if text_search else 'skipped'} this run.")
 
     if seen is None:
         # First run: remember the current catalogue without announcing all of it.
