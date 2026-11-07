@@ -815,5 +815,7 @@
   "piki.5976067": {"title": "Pokémon Violet (Nintendo Switch)", "libraries": ["Urjalan kirjasto"]},
   "piki.5978365": {"title": "Moomintroll: Winter's warmth (Nintendo Switch)", "libraries": ["Akaan pääkirjasto", "Kangasalan kirjasto", "Tampereen kaupunginkirjasto"]},
   "piki.5980348": {"title": "Dragon quest monsters: the withered world (Nintendo Switch)", "libraries": ["Tampereen kaupunginkirjasto", "Valkeakosken pääkirjasto"]},
-  "piki.5982540": {"title": "Mortal Kombat: Legacy Kollection (Nintendo Switch)", "libraries": ["Tampereen kaupunginkirjasto"]}
+  "piki.5982540": {"title": "Mortal Kombat: Legacy Kollection (Nintendo Switch)", "libraries": ["Tampereen kaupunginkirjasto"]},
+  "piki.5993453": {"title": "Hyrule warriors: age of calamity definitive edition (Nintendo Switch 2)", "libraries": ["Valkeakosken pääkirjasto"]},
+  "piki.5993465": {"title": "The legend of zelda: ocarina of time (Nintendo Switch 2)", "libraries": ["Valkeakosken pääkirjasto"]}
 }
